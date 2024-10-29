@@ -1,71 +1,131 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
-namespace LegacySystem
+namespace SimpleSystem
 {
-    class MainSistema
+    class Program
     {
         static void Main(string[] args)
         {
-            SistemaCliente sc = new SistemaCliente();
-            sc.AddCliente(1, "Joao", "joao@email.com");
-            sc.AddCliente(2, "Maria", "maria@email.com");
+            var clientService = new ClientService();
+            clientService.AddClient(1, "Joao", "joao@gmail.com");
+            clientService.AddClient(2, "Maria", "maria@gmail.com");
 
-            SistemaTransacoes st = new SistemaTransacoes();
-            st.AdicionarTransacao(1, 100.50m, "Compra de Produto");
-            st.AdicionarTransacao(2, 200.00m, "Compra de Serviço");
-            st.AdicionarTransacao(3, 300.75m, "Compra de Software");
+            var transactionService = new TransactionService();
+            transactionService.AddTransaction(1, 100.50m, "Compra de Produto");
+            transactionService.AddTransaction(2, 200.00m, "Compra de Serviço");
 
-            sc.ExibirTodosOsClientes();
-            st.ExibirTransacoes();
+            clientService.ShowAllClients();
+            transactionService.ShowAllTransactions();
 
-            sc.removerCliente(1);
-            sc.ExibirTodosOsClientes();
+            clientService.RemoveClient(1);
+            clientService.ShowAllClients();
 
-            sc.AtualizarNomeCliente(2, "Maria Silva");
+            clientService.UpdateClientName(2, "Maria Silva");
 
-            string nomeEmpresa = "Empresa Teste";
-            string descricaoTransacao = "Compra de Insumo";
+            PrintCompanyInfo();
 
-            for (int i = 0; i < 5; i++)
+            var report = new Report();
+            Report.GenerateClientReport(clientService.clients);
+
+            Console.WriteLine("Total: " + CalculateSum(10));
+        }
+
+        static void PrintCompanyInfo()
+        {
+            const string CompanyName = "Leroy Merlin";
+            const string TransactionDescription = "Compra de tintas";
+            const int RepeatCount = 3;
+
+            for (int i = 0; i < RepeatCount; i++)
             {
-                Console.WriteLine("Nome da Empresa: " + nomeEmpresa + " Descrição: " + descricaoTransacao);
+                Console.WriteLine("Empresa: " + CompanyName + ", Descrição: " + TransactionDescription);
             }
+        }
 
-            for (int i = 0; i < 5; i++)
+        static int CalculateSum(int count)
+        {
+            int sum = 0;
+            for (int i = 0; i < count; i++)
             {
-                Console.WriteLine("Nome da Empresa: " + nomeEmpresa + " Descrição: " + descricaoTransacao);
+                sum += i;
             }
+            return sum;
+        }
+    }
 
-            for (int i = 0; i < 5; i++)
+    class ClientService
+    {
+        public readonly List<Client> clients = new List<Client>();
+
+        public void AddClient(int id, string name, string email)
+        {
+            clients.Add(new Client(id, name, email));
+        }
+
+        public void RemoveClient(int id)
+        {
+            clients.RemoveAll(c => c.Id == id);
+        }
+
+        public void UpdateClientName(int id, string newName)
+        {
+            var client = clients.Find(c => c.Id == id);
+            if (client != null)
             {
-                Console.WriteLine("Nome da Empresa: " + nomeEmpresa + " Descrição: " + descricaoTransacao);
+                client.Name = newName;
             }
+        }
 
-            for (int i = 0; i < 5; i++)
+        public void ShowAllClients()
+        {
+            foreach (var client in clients)
             {
-                Console.WriteLine("Nome da Empresa: " + nomeEmpresa + " Descrição: " + descricaoTransacao);
+                Console.WriteLine("ID: " + client.Id + ", Nome: " + client.Name + ", Email: " + client.Email);
             }
+        }
+    }
 
-            Relatorio relatorio = new Relatorio();
-            relatorio.GerarRelatorioCliente(sc.clientes);
-            relatorio.GerarRelatorioClienteDuplicado(sc.clientes);
+    class TransactionService
+    {
+        private readonly List<Transaction> transactions = new List<Transaction>();
 
-            int soma = 0;
-            for (int i = 0; i < 10; i++)
+        public void AddTransaction(int id, decimal value, string description)
+        {
+            transactions.Add(new Transaction(id, value, description));
+        }
+
+        public void ShowAllTransactions()
+        {
+            foreach (var transaction in transactions)
             {
-                //Soma mais 1
-                soma += i;
+                Console.WriteLine("ID: " + transaction.Id + ", Valor Transação: " + transaction.Value + ", Descrição: " + transaction.Description);
             }
+        }
+    }
 
-            Console.WriteLine("Soma total: " + soma);
+    class Client(int id, string name, string email)
+    {
+        public int Id { get; } = id;
+        public string Name { get; set; } = name;
+        public string Email { get; } = email;
+    }
 
-            int somaDuplicada = 0;
-            for (int i = 0; i < 10; i++)
+    class Transaction(int id, decimal value, string description)
+    {
+        public int Id { get; } = id;
+        public decimal Value { get; } = value;
+        public string Description { get; } = description;
+    }
+
+    class Report
+    {
+        public static void GenerateClientReport(List<Client> clients)
+        {
+            Console.WriteLine("Client Report:");
+            foreach (var client in clients)
             {
-                //Soma Duplicada
-                somaDuplicada += i;
+                Console.WriteLine("ID: " + client.Id + ", Nome: " + client.Name + ", Email: " + client.Email);
             }
         }
     }
